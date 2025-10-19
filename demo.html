@@ -1,58 +1,40 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>News Summarizer Demo</title>
-  <style>
-    body{font-family: Arial; max-width:760px;margin:40px auto;padding:0 16px}
-    textarea{width:100%;height:80px;margin-bottom:8px}
-    #summary{white-space:pre-wrap;background:#f7f7f7;padding:12px;border-radius:6px}
-    button{padding:8px 12px;border-radius:6px}
-  </style>
+    <title>News Summarizer</title>
 </head>
 <body>
-  <h1>News Summarizer — Demo</h1>
-  <p>Paste an article URL and click <b>Summarize</b>. If fetching fails, demo text will be summarized.</p>
+    <h1>Serverless News Summarizer</h1>
+    <p>Paste a news article URL and click Summarize:</p>
+    <input type="text" id="urlInput" size="80" placeholder="Enter article URL here">
+    <button onclick="summarizeArticle()">Summarize</button>
+    <h2>Summary:</h2>
+    <div id="summary" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; width: 80%;"></div>
 
-  <label>Article URL</label>
-  <input id="url" placeholder="https://example.com/article" style="width:100%" />
+    <script>
+        async function summarizeArticle() {
+            const url = document.getElementById('urlInput').value;
+            const summaryDiv = document.getElementById('summary');
+            summaryDiv.textContent = "Loading...";
 
-  <div style="margin-top:8px">
-    <button id="go">Summarize</button>
-  </div>
+            try {
+                const response = await fetch("https://boayfb3y69.execute-api.ap-south-1.amazonaws.com/default/news-summarizer", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url })
+                });
 
-  <h3>Summary</h3>
-  <div id="summary">No summary yet.</div>
+                if (!response.ok) {
+                    summaryDiv.textContent = "Error fetching summary.";
+                    return;
+                }
 
-  <script>
-    const API_ENDPOINT = "https://boayfb3y69.execute-api.ap-south-1.amazonaws.com/default/news-summarizer"; // << replace with your endpoint if different
-    document.getElementById('go').onclick = async () => {
-      const url = document.getElementById('url').value.trim();
-      const body = JSON.stringify({ url: url || "" });
-      document.getElementById('summary').textContent = "Working...";
-
-      try {
-        const res = await fetch(API_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body
-        });
-        if (!res.ok) {
-          const txt = await res.text();
-          throw new Error(`HTTP ${res.status}: ${txt}`);
+                const data = await response.json();
+                summaryDiv.textContent = data.summary || "No summary returned.";
+            } catch (err) {
+                summaryDiv.textContent = "Error: " + err.message;
+            }
         }
-        const j = await res.json();
-        if (j.summary) {
-          document.getElementById('summary').textContent = j.summary;
-        } else if (j.error) {
-          document.getElementById('summary').textContent = "Error: " + j.error;
-        } else {
-          document.getElementById('summary').textContent = JSON.stringify(j);
-        }
-      } catch (err) {
-        document.getElementById('summary').textContent = "Request failed: " + err.message;
-      }
-    };
-  </script>
+    </script>
 </body>
 </html>
