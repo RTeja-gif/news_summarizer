@@ -1,44 +1,18 @@
-\# Serverless News Summarizer
+# Serverless News Summarizer
 
+## Objective
+Build a serverless function that takes a news article URL and returns a short summary using Hugging Face NLP API and AWS Lambda.
 
+## How to Use
+1. Open `demo.html` in a browser (or use local server with `python -m http.server 8000`).
+2. Paste a news URL, e.g., `https://www.bbc.com/news/world-asia-67149306`.
+3. Click **Summarize**.
+4. The summary will appear below the button.
 
-\## Objective
+## API Endpoint
 
-AWS Lambda function to summarize news articles using Hugging Face free API.
-
-
-
-\## Setup
-
-1\. Create AWS Lambda function (Python 3.11)
-
-2\. Add API Gateway (POST method)
-
-3\. Paste code from lambda\_function.py
-
-4\. Set Hugging Face API token
-
-5\. Deploy and test
-
-
-
-\## Usage
-
-curl -X POST https://<your-api-endpoint> -H "Content-Type: application/json" -d '{"url":"<news\_url>"}'
-
-
-
-\## Challenges
-
-\- Extracting text cleanly from HTML required BeautifulSoup
-
-\- Limited input size for API, trimmed to 4000 characters
-
-
-
-\## AI Tool Usage
-
-\- Hugging Face API used for summarization
-
-
-
+### Example curl
+```bash
+curl -X POST "https://boayfb3y69.execute-api.ap-south-1.amazonaws.com/default/news-summarizer" ^
+-H "Content-Type: application/json" ^
+-d "{\"url\":\"https://www.bbc.com/news/world-asia-67149306\"}"

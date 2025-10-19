@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>News Summarizer Demo</title>
+  <style>
+    body{font-family: Arial; max-width:760px;margin:40px auto;padding:0 16px}
+    textarea{width:100%;height:80px;margin-bottom:8px}
+    #summary{white-space:pre-wrap;background:#f7f7f7;padding:12px;border-radius:6px}
+    button{padding:8px 12px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <h1>News Summarizer — Demo</h1>
+  <p>Paste an article URL and click <b>Summarize</b>. If fetching fails, demo text will be summarized.</p>
+
+  <label>Article URL</label>
+  <input id="url" placeholder="https://example.com/article" style="width:100%" />
+
+  <div style="margin-top:8px">
+    <button id="go">Summarize</button>
+  </div>
+
+  <h3>Summary</h3>
+  <div id="summary">No summary yet.</div>
+
+  <script>
+    const API_ENDPOINT = "https://boayfb3y69.execute-api.ap-south-1.amazonaws.com/default/news-summarizer"; // << replace with your endpoint if different
+    document.getElementById('go').onclick = async () => {
+      const url = document.getElementById('url').value.trim();
+      const body = JSON.stringify({ url: url || "" });
+      document.getElementById('summary').textContent = "Working...";
+
+      try {
+        const res = await fetch(API_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body
+        });
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`HTTP ${res.status}: ${txt}`);
+        }
+        const j = await res.json();
+        if (j.summary) {
+          document.getElementById('summary').textContent = j.summary;
+        } else if (j.error) {
+          document.getElementById('summary').textContent = "Error: " + j.error;
+        } else {
+          document.getElementById('summary').textContent = JSON.stringify(j);
+        }
+      } catch (err) {
+        document.getElementById('summary').textContent = "Request failed: " + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
