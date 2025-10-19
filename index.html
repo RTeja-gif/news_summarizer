@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>News Summarizer</title>
+</head>
+<body>
+    <h1>Serverless News Summarizer</h1>
+    <p>Paste a news article URL and click Summarize:</p>
+    <input type="text" id="urlInput" size="80" placeholder="Enter article URL here">
+    <button onclick="summarizeArticle()">Summarize</button>
+    <h2>Summary:</h2>
+    <div id="summary" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; width: 80%;"></div>
+
+    <script>
+        async function summarizeArticle() {
+            const url = document.getElementById('urlInput').value;
+            const summaryDiv = document.getElementById('summary');
+            summaryDiv.textContent = "Loading...";
+
+            try {
+                const response = await fetch("https://boayfb3y69.execute-api.ap-south-1.amazonaws.com/default/news-summarizer", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url })
+                });
+
+                if (!response.ok) {
+                    summaryDiv.textContent = "Error fetching summary.";
+                    return;
+                }
+
+                const data = await response.json();
+                summaryDiv.textContent = data.summary || "No summary returned.";
+            } catch (err) {
+                summaryDiv.textContent = "Error: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
